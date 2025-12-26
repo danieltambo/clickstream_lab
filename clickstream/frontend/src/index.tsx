@@ -33,6 +33,16 @@ const App = ({ args }: Props) => {
     Streamlit.setFrameHeight();
   });
 
+  // Para enviar tiempo inicial (t0) al cliente
+  useEffect(() => {
+    const t0 = Date.now();
+
+    Streamlit.setComponentValue({
+      event: "render",
+      timestamp: t0,
+    });
+  }, [html]);
+
   return <Renderer html={html} containerRef={containerRef} />;
 };
 

@@ -28845,6 +28845,16 @@ const $ab1cd5f3b8d0b6aa$var$App = ({ args: args })=>{
         (0, $921729aed3f2958f$export$e733d124b3a21d3f).setComponentReady();
         (0, $921729aed3f2958f$export$e733d124b3a21d3f).setFrameHeight();
     });
+    // Para enviar tiempo inicial (t0) al cliente
+    (0, $d4J5n.useEffect)(()=>{
+        const t0 = Date.now();
+        (0, $921729aed3f2958f$export$e733d124b3a21d3f).setComponentValue({
+            event: "render",
+            timestamp: t0
+        });
+    }, [
+        html
+    ]);
     return /*#__PURE__*/ (0, $17b288f07ec57b56$exports.jsx)((0, $8e14ea9c7f66dc41$export$88530751e3977073), {
         html: html,
         containerRef: containerRef
