@@ -8504,7 +8504,18 @@ module.exports = $989dd0204dadcec0$var$shouldUseNative() ? Object.assign : funct
 });
 
 
-var $17b288f07ec57b56$exports = {};
+/**
+ * Punto de entrada del componente clickstream.
+ *
+ * Coordina el ciclo completo del componente:
+ * - renderizado del estímulo HTML
+ * - captura e instrumentación de eventos de interacción
+ * - envío de eventos al backend de Streamlit
+ *
+ * Actúa como frontera explícita entre:
+ * frontend (medición conductual y timestamps)
+ * backend (recogida y análisis de datos)
+ */ var $17b288f07ec57b56$exports = {};
 'use strict';
 
 $17b288f07ec57b56$exports = (parcelRequire("4WnG3"));
@@ -28767,7 +28778,19 @@ function $cc226d54eebc9f33$export$d642c9cf7fa2c9dc(WrappedComponent) {
 
 
 
-
+/**
+ * Renderer
+ * --------
+ * Componente responsable exclusivamente de renderizar el HTML
+ * dentro del iframe.
+ *
+ * - No gestiona eventos
+ * - No mide interacción
+ * - No contiene lógica experimental
+ *
+ * La separación renderer / logger es intencional para mantener
+ * una arquitectura clara y facilitar el análisis posterior.
+ */ 
 parcelRequire("d4J5n");
 const $8e14ea9c7f66dc41$export$88530751e3977073 = ({ html: html, containerRef: containerRef })=>{
     return /*#__PURE__*/ (0, $17b288f07ec57b56$exports.jsx)("div", {
@@ -28783,9 +28806,20 @@ const $8e14ea9c7f66dc41$export$88530751e3977073 = ({ html: html, containerRef: c
 };
 
 
-function $f5bba34c6c45618b$export$788ea32d7eb965b2(root, emit) {
+/**
+ * Evento atómico de interacción capturado en cliente.
+ *
+ * Representa acciones básicas (hover / click) sobre elementos
+ * instrumentados mediante atributos data-track.
+ *
+ * No incluye métricas derivadas (latencias, TFA, heurísticos),
+ * que se calculan posteriormente en el backend.
+ */ function $f5bba34c6c45618b$export$788ea32d7eb965b2(root, emit) {
+    // Marca temporal de inicio de hover para calcular duración
     let hoverStart = null;
+    // Selección de elementos explícitamente instrumentados (data-track)
     const elements = root.querySelectorAll("[data-track]");
+    // Handler de entrada de hover: registra inicio y emite evento
     const onEnter = (e)=>{
         const target = e.currentTarget.getAttribute("data-track");
         hoverStart = Date.now();
@@ -28795,6 +28829,7 @@ function $f5bba34c6c45618b$export$788ea32d7eb965b2(root, emit) {
             timestamp: hoverStart
         });
     };
+    // Handler de salida de hover: calcula duración y emite evento
     const onLeave = (e)=>{
         const target = e.currentTarget.getAttribute("data-track");
         const now = Date.now();
@@ -28806,6 +28841,7 @@ function $f5bba34c6c45618b$export$788ea32d7eb965b2(root, emit) {
         });
         hoverStart = null;
     };
+    // Handler de click: emite evento inmediato con timestamp
     const onClick = (e)=>{
         const target = e.currentTarget.getAttribute("data-track");
         emit({
@@ -28819,6 +28855,7 @@ function $f5bba34c6c45618b$export$788ea32d7eb965b2(root, emit) {
         el.addEventListener("mouseleave", onLeave);
         el.addEventListener("click", onClick);
     });
+    // Función de cleanup: elimina listeners para evitar fugas de memoria
     return ()=>{
         elements.forEach((el)=>{
             el.removeEventListener("mouseenter", onEnter);
@@ -28829,9 +28866,11 @@ function $f5bba34c6c45618b$export$788ea32d7eb965b2(root, emit) {
 }
 
 
+// Componente principal que renderiza el estímulo y gestiona la captura de eventos
 const $ab1cd5f3b8d0b6aa$var$App = ({ args: args })=>{
     const { html: html = "" } = args;
     const containerRef = (0, $d4J5n.useRef)(null);
+    // Inicializa la captura de interacciones dentro del contenedor y envía cada evento registrado a Streamlit
     (0, $d4J5n.useEffect)(()=>{
         if (!containerRef.current) return;
         const detach = (0, $f5bba34c6c45618b$export$788ea32d7eb965b2)(containerRef.current, (event)=>{
@@ -28841,11 +28880,12 @@ const $ab1cd5f3b8d0b6aa$var$App = ({ args: args })=>{
     }, [
         html
     ]);
+    // Señala a Streamlit que el componente está listo y ajusta el alto del iframe
     (0, $d4J5n.useEffect)(()=>{
         (0, $921729aed3f2958f$export$e733d124b3a21d3f).setComponentReady();
         (0, $921729aed3f2958f$export$e733d124b3a21d3f).setFrameHeight();
     });
-    // Para enviar tiempo inicial (t0) al cliente
+    // Envia tiempo inicial (t0) al cliente
     (0, $d4J5n.useEffect)(()=>{
         const t0 = Date.now();
         (0, $921729aed3f2958f$export$e733d124b3a21d3f).setComponentValue({
@@ -28860,6 +28900,7 @@ const $ab1cd5f3b8d0b6aa$var$App = ({ args: args })=>{
         containerRef: containerRef
     });
 };
+// Conecta el componente al ciclo de vida de Streamlit
 const $ab1cd5f3b8d0b6aa$var$Connected = (0, $cc226d54eebc9f33$export$d642c9cf7fa2c9dc)($ab1cd5f3b8d0b6aa$var$App);
 const $ab1cd5f3b8d0b6aa$var$rootElement = document.getElementById("root");
 if ($ab1cd5f3b8d0b6aa$var$rootElement) {
